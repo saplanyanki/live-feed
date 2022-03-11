@@ -1,0 +1,173 @@
+---
+title: "Blocks"
+author: "Yanki Saplan"
+date: "`r format(Sys.time(), '%B %d %Y - %H:%M %p')`"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    social: menu
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r Libraries, include=FALSE}
+library(quantmod)
+source('./reqs.R')
+source('./get_data.R')
+```
+
+ENERGY STOCKS
+==============
+
+Row {data-height=600}
+-----------------------------------------------------------------------
+#HUSA
+```{r HUSA STOCK, echo=FALSE}
+getSymbols("HUSA", src="yahoo")
+chartSeries(HUSA, subset="last 1 week", theme=chartTheme("white"))
+```
+#CEI ENERGY
+```{r CEI ENERGY, echo=FALSE}
+getSymbols("CEI", src="yahoo")
+chartSeries(CEI, subset="last 1 week", theme=chartTheme("white"))
+```
+#WWR STOCK
+```{r TUSK STOCK, echo=FALSE}
+getSymbols("WWR", src="yahoo")
+chartSeries(WWR, subset="last 1 week", theme=chartTheme("white"))
+```
+
+CRYPTO STOCKS
+==============
+{data-height=600}
+------------------
+### Crypto Volume
+
+```{r - Volume Graph}
+crypto.bar <- plot_ly(
+  x = coin_history$name,
+  y = coin_history$volume,
+  name = "Cryptos",
+  type = "bar"
+)
+
+crypto.bar
+```
+{data-height=600}
+------------------
+### Bitcoin Graph
+
+```{r Bitcoin Graph}
+fig <- plot_ly(bitcoin.history, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~timestamp, y = ~open)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+{data-height=600}
+------------------
+### Ethereum Graph
+
+```{r Ethereum Graph}
+fig <- plot_ly(eth.history, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~timestamp, y = ~open)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+{data-height=600}
+------------------
+### Cardano Graph
+
+```{r Cardano Graph}
+fig <- plot_ly(ada.history, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~timestamp, y = ~open)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+{data-height=600}
+------------------
+### Solana Graph
+
+```{r Solana Graph}
+fig <- plot_ly(sol.history, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~timestamp, y = ~open)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
