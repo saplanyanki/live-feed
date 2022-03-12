@@ -299,14 +299,12 @@ Row
 ```{r Web Scraped Data MCW}
 top_terms_by_topic_LDA(reviews$text, number_of_topics = 4)
 ```
-Row
-------------------------------------
+
 ### Cleaned Data
 ```{r Cleaned MCW}
 top_terms_by_topic_LDA(cleaned_documents$terms, number_of_topics = 4)
 ```
-Row
-------------------------------------
+
 ### Informative
 ```{r More Informative}
 # stem the words (e.g. convert each word to its stem, where applicable)
@@ -338,6 +336,8 @@ Sentiment_Analysis_Word_Count %>%
   coord_flip()
 ```
 
+Row
+------------------------------------
 ### Source Scores
 ```{r Source Scores}
 Sentiment_Analysis <- text_df %>% 
