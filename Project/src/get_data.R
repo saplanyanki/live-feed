@@ -82,13 +82,21 @@ sol <- subset(coin_history, name == 'Solana')
 ava <- subset(coin_history, name == 'Avalanche')
 
 
+#In depth manipulation
+bitcoin.history.max.gauge <- bitcoin.history %>%
+  filter(timestamp == max(timestamp))
+
+eth.history.max.gauge <- eth.history %>%
+  filter(timestamp == max(timestamp))
+
+ada.history.max.gauge <- ada.history %>%
+  filter(timestamp == max(timestamp))
+
+sol.history.max.gauge <- sol.history %>%
+  filter(timestamp == max(timestamp))
 
 
-
-
-
-
-
+#Web Scraping Manipulation
 
 
 

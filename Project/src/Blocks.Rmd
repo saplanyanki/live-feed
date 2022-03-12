@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 ```{r Libraries, include=FALSE}
 library(quantmod)
 source('./reqs.R')
+source('./scrape.R')
 source('./get_data.R')
 ```
 
@@ -146,15 +147,60 @@ fig <- fig %>%
 fig
 ```
 
+CRYPTO IN-DEPTH
+==============
+Row
+------------------------------------
+###Bitcoin
+```{r Bitcoin Gauge}
+fig <- plot_ly(
+    domain = bitcoin.history.max.gauge$timestamp,
+    value = bitcoin.history.max.gauge$high,
+    title = bitcoin.history.max.gauge$timestamp,
+    type = "indicator",
+    mode = "gauge+number")
 
+fig
+```
 
+###Ethereuem
+```{r Eth Gauge}
+fig <- plot_ly(
+    domain = eth.history.max.gauge$timestamp,
+    value = eth.history.max.gauge$high,
+    title = eth.history.max.gauge$timestamp,
+    type = "indicator",
+    mode = "gauge+number")
 
+fig
+```
 
+###Cardano
+```{r Ada Gauge}
+fig <- plot_ly(
+    domain = ada.history.max.gauge$timestamp,
+    value = ada.history.max.gauge$high,
+    title = ada.history.max.gauge$timestamp,
+    type = "indicator",
+    mode = "gauge+number")
 
+fig
+```
 
+###Solana
+```{r Sol Gauge}
+fig <- plot_ly(
+    domain = sol.history.max.gauge$timestamp,
+    value = sol.history.max.gauge$high,
+    title = sol.history.max.gauge$timestamp,
+    type = "indicator",
+    mode = "gauge+number")
 
+fig
+```
 
-
+Row
+------------------------------------
 
 
 

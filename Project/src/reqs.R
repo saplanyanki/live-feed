@@ -15,6 +15,8 @@ library(crypto2)
 library(flexdashboard)
 library(plotly)
 library(shiny)
-
+library(dplyr)
+library(xml2)
+library(rvest)
 
 
