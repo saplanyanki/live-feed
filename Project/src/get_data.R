@@ -25,10 +25,10 @@ oil.pred <- predict(oil.tree, newdata=Oil)
 
 #Accuracy
 perf.tree <- data.frame(RMSE= RMSE(oil.pred, Oil$Value))
-last_row = tail(oil.pred, n =1)
 
 Oil[nrow(Oil) + 1,] = c(today.1,0)
 oil.pred <- predict(oil.tree, newdata=Oil)
+last_row = tail(oil.pred, n =1)
 
 
 #CRYPTO DATA
@@ -233,7 +233,7 @@ text_df <- tibble(id_review = newsdf$Source , text_review = newsdf$Description)
 text_df <- text_df %>%  unnest_tokens(word, text_review)
 
 data(stop_words)
-data(afinn)
+#data(afinn)
 text_df <- text_df %>% 
   anti_join(stop_words, "word")
 
@@ -261,4 +261,34 @@ term_frequency_review$document <- as.character("Review")
 term_frequency_review <- term_frequency_review %>% 
   bind_tf_idf(word, document, n)
 
+###Another way of doing Sentiment Analysis - for CRYPTO
+crypto_df <- tibble(id_review = cryptonews$Source , text_review = cryptonews$Description)
+crypto_df <- crypto_df %>%  unnest_tokens(word, text_review)
 
+data(stop_words)
+#data(afinn)
+crypto_df <- crypto_df %>% 
+  anti_join(stop_words, "word")
+
+
+Sentiment_Analysis.crypto <- crypto_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+head(Sentiment_Analysis.crypto)%>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
+
+
+Sentiment_Analysis_Word_Count.crypto <- crypto_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+term_frequency_review.crypto <- crypto_df %>% count(word, sort = TRUE)
+term_frequency_review.crypto$total_words <- as.numeric(term_frequency_review.crypto %>% summarize(total = sum(n)))
+term_frequency_review.crypto$document <- as.character("Review")
+term_frequency_review.crypto <- term_frequency_review.crypto %>% 
+  bind_tf_idf(word, document, n)

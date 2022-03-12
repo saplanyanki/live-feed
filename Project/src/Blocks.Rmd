@@ -34,18 +34,6 @@ valueBox(last_row, caption = "Oil Prediction Linear", icon = "glyphicon-oil")
 valueBox(perf.tree$RMSE,caption = "Oil RMSE", icon = 'glyphicon-sort')
 ```
 
-Row
------------------
-### {.value-box}
-```{r Gold Prediction Linear}
-valueBox(last_row.gold, caption = "Gold Prediction Linear", icon = "glyphicon-oil")
-```
-
-### {.value-box}
-```{r Gold RMSE}
-valueBox(gold.perf.tree$RMSE,caption = "Gold RMSE", icon = 'glyphicon-sort')
-```
-
 {data-height=600}
 ------------------
 ### Gold Graph
@@ -250,6 +238,43 @@ fig <- plot_ly(
 fig
 ```
 
+Row
+------------------------------------
+### CRYPTO RELATIONS
+```{r Crypto Relations}
+# create a dataset:
+data.crypto <- data_frame(
+  from=crypto_df$id_review,
+  to=crypto_df$word
+)
+
+# Plot
+p <- simpleNetwork(data.crypto, height="2000px", width="2000px")
+p
+```
+
+Row
+------------------------------------
+### REVIEWS
+```{r Crypto Reviews}
+term_frequency_review.crypto %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(15, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
+
+### News Scores Daily
+```{r Crypto Source Scores, echo=FALSE}
+Sentiment_Analysis.crypto
+```
+
 
 RELATIONS
 ==============
@@ -263,7 +288,7 @@ data <- data_frame(
 )
 
 # Plot
-p <- simpleNetwork(data, height="1000px", width="1000px")
+p <- simpleNetwork(data, height="2000px", width="2000px")
 p
 ```
 
@@ -298,6 +323,7 @@ cleaned_documents <- reviewsDTM_tidy_cleaned %>%
 # now let's look at the new most informative terms
 top_terms_by_topic_LDA(cleaned_documents$terms, number_of_topics = 3)
 ```
+
 ### Word Polarity
 ```{r Word Polarity}
 Sentiment_Analysis_Word_Count %>% 
@@ -311,6 +337,7 @@ Sentiment_Analysis_Word_Count %>%
   labs(y = "Contribution to Sentiment", x = NULL) + 
   coord_flip()
 ```
+
 ### Source Scores
 ```{r Source Scores}
 Sentiment_Analysis <- text_df %>% 

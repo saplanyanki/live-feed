@@ -40,3 +40,4 @@ news <- function(term) {
 }
 
 newsdf <- news('politics"%20economy')
+cryptonews <- news('crypto"%20bitcoin')
