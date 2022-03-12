@@ -15,32 +15,83 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE)
 ```
 
 ```{r Libraries, include=FALSE}
-library(quantmod)
 source('./reqs.R')
 source('./scrape.R')
 source('./get_data.R')
 ```
 
-ENERGY STOCKS
+COMMODITIES PREDICTIONS
 ==============
+Row
+-----------------
+### {.value-box}
+```{r Oil Prediction Linear}
+valueBox(last_row, caption = "Oil Prediction Linear", icon = "glyphicon-oil")
+```
 
-Row {data-height=600}
------------------------------------------------------------------------
-#HUSA
-```{r HUSA STOCK, echo=FALSE}
-getSymbols("HUSA", src="yahoo")
-chartSeries(HUSA, subset="last 1 week", theme=chartTheme("white"))
+### {.value-box}
+```{r Oil RMSE}
+valueBox(perf.tree$RMSE,caption = "Oil RMSE", icon = 'glyphicon-sort')
 ```
-#CEI ENERGY
-```{r CEI ENERGY, echo=FALSE}
-getSymbols("CEI", src="yahoo")
-chartSeries(CEI, subset="last 1 week", theme=chartTheme("white"))
+
+Row
+-----------------
+### {.value-box}
+```{r Gold Prediction Linear}
+valueBox(last_row.gold, caption = "Gold Prediction Linear", icon = "glyphicon-oil")
 ```
-#WWR STOCK
-```{r TUSK STOCK, echo=FALSE}
-getSymbols("WWR", src="yahoo")
-chartSeries(WWR, subset="last 1 week", theme=chartTheme("white"))
+
+### {.value-box}
+```{r Gold RMSE}
+valueBox(gold.perf.tree$RMSE,caption = "Gold RMSE", icon = 'glyphicon-sort')
 ```
+
+{data-height=600}
+------------------
+### Gold Graph
+
+```{r Gold Graph}
+fig <- plot_ly(Gold, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Dates, y = ~USD)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+
+{data-height=600}
+------------------
+### Oil Graph
+
+```{r Oil Graph}
+fig <- plot_ly(Oil, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Date, y = ~Value)%>%
+  layout(showlegend = F)
+
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6', width = 1000)
+
+
+fig
+```
+
 
 CRYPTO STOCKS
 ==============
@@ -199,16 +250,92 @@ fig <- plot_ly(
 fig
 ```
 
+
+RELATIONS
+==============
+Row
+------------------------------------
+```{r Relations}
+# create a dataset:
+data <- data_frame(
+  from=text_df$id_review,
+  to=text_df$word
+)
+
+# Plot
+p <- simpleNetwork(data, height="1000px", width="1000px")
+p
+```
+
 Row
 ------------------------------------
 
+### Terms
+```{r Web Scraped Data MCW}
+top_terms_by_topic_LDA(reviews$text, number_of_topics = 4)
+```
+Row
+------------------------------------
+### Cleaned Data
+```{r Cleaned MCW}
+top_terms_by_topic_LDA(cleaned_documents$terms, number_of_topics = 4)
+```
+Row
+------------------------------------
+### Informative
+```{r More Informative}
+# stem the words (e.g. convert each word to its stem, where applicable)
+reviewsDTM_tidy_cleaned <- reviewsDTM_tidy_cleaned %>% 
+    mutate(stem = wordStem(term))
 
+# reconstruct our documents
+cleaned_documents <- reviewsDTM_tidy_cleaned %>%
+    group_by(document) %>% 
+    mutate(terms = toString(rep(stem, count))) %>%
+    select(document, terms) %>%
+    unique()
 
+# now let's look at the new most informative terms
+top_terms_by_topic_LDA(cleaned_documents$terms, number_of_topics = 3)
+```
+### Word Polarity
+```{r Word Polarity}
+Sentiment_Analysis_Word_Count %>% 
+  group_by(sentiment) %>% 
+  top_n(12, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~sentiment, scales = "free_y") + 
+  labs(y = "Contribution to Sentiment", x = NULL) + 
+  coord_flip()
+```
+### Source Scores
+```{r Source Scores}
+Sentiment_Analysis <- text_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
 
+Sentiment_Analysis
+```
 
-
-
-
+### Frequency Tables
+```{r Frequency}
+term_frequency_review %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(15, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
 
 
 
