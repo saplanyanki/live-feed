@@ -292,3 +292,48 @@ term_frequency_review.crypto$total_words <- as.numeric(term_frequency_review.cry
 term_frequency_review.crypto$document <- as.character("Review")
 term_frequency_review.crypto <- term_frequency_review.crypto %>% 
   bind_tf_idf(word, document, n)
+
+
+###Another way of doing Sentiment Analysis - for COMMODITIES
+commoditynews_df <- tibble(id_review = commoditynews$Source , text_review = commoditynews$Description)
+commoditynews_df <- commoditynews_df %>%  unnest_tokens(word, text_review)
+
+data(stop_words)
+#data(afinn)
+commoditynews_df <- commoditynews_df %>% 
+  anti_join(stop_words, "word")
+
+
+Sentiment_Analysis.commodity <- commoditynews_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+head(Sentiment_Analysis.commodity)%>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
+
+
+Sentiment_Analysis_Word_Count.commodity <- commoditynews_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+term_frequency_review.commodity <- commoditynews_df %>% count(word, sort = TRUE)
+term_frequency_review.commodity$total_words <- as.numeric(term_frequency_review.commodity %>% summarize(total = sum(n)))
+term_frequency_review.commodity$document <- as.character("Review")
+term_frequency_review.commodity <- term_frequency_review.commodity %>% 
+  bind_tf_idf(word, document, n)
+
+
+
+
+
+
+
+
+
+
+
+

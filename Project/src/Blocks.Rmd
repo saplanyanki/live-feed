@@ -34,6 +34,57 @@ valueBox(last_row, caption = "Oil Prediction Linear", icon = "glyphicon-oil")
 valueBox(perf.tree$RMSE,caption = "Oil RMSE", icon = 'glyphicon-sort')
 ```
 
+Row
+------------------------------------
+### Commodity Relations
+```{r Commodity Relations}
+# create a dataset:
+data.commodity <- data_frame(
+  from=commoditynews_df$id_review,
+  to=commoditynews_df$word
+)
+
+# Plot
+p <- simpleNetwork(data.commodity, height="2000px", width="2000px")
+p
+```
+
+Row
+------------------------------------
+### Source Scores
+```{r Commodity Source Scores}
+Sentiment_Analysis.commodity
+```
+
+### Frequency Tables
+```{r Commodity Frequency}
+term_frequency_review.commodity %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(15, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
+
+### Word Polarity
+```{r Commodity Word Polarity}
+Sentiment_Analysis_Word_Count.commodity %>% 
+  group_by(sentiment) %>% 
+  top_n(12, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~sentiment, scales = "free_y") + 
+  labs(y = "Contribution to Sentiment", x = NULL) + 
+  coord_flip()
+```
+
 {data-height=600}
 ------------------
 ### Gold Graph
