@@ -4,7 +4,7 @@ today <- Sys.Date()
 today <- sub(" UTC", "", today)
 today.1 <- sub(" UTC", "", today)
 today <- gsub("-", "", today)
-API_KEY <- "EysB_6_3uAgy6jgSzY5-"
+API_KEY <- "SECRET"
 
 Quandl.api_key(API_KEY)
 
