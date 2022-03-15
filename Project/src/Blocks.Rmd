@@ -241,7 +241,7 @@ CRYPTO IN-DEPTH
 ==============
 Row
 ------------------------------------
-###Bitcoin
+### Bitcoin
 ```{r Bitcoin Gauge}
 fig <- plot_ly(
     domain = bitcoin.history.max.gauge$timestamp,
@@ -253,7 +253,7 @@ fig <- plot_ly(
 fig
 ```
 
-###Ethereuem
+### Ethereuem
 ```{r Eth Gauge}
 fig <- plot_ly(
     domain = eth.history.max.gauge$timestamp,
@@ -265,7 +265,7 @@ fig <- plot_ly(
 fig
 ```
 
-###Cardano
+### Cardano
 ```{r Ada Gauge}
 fig <- plot_ly(
     domain = ada.history.max.gauge$timestamp,
@@ -277,7 +277,7 @@ fig <- plot_ly(
 fig
 ```
 
-###Solana
+### Solana
 ```{r Sol Gauge}
 fig <- plot_ly(
     domain = sol.history.max.gauge$timestamp,
@@ -300,7 +300,7 @@ data.crypto <- data_frame(
 )
 
 # Plot
-p <- simpleNetwork(data.crypto, height="2000px", width="2000px")
+p <- simpleNetwork(data.crypto, height="3000px", width="2000px")
 p
 ```
 
@@ -327,10 +327,11 @@ Sentiment_Analysis.crypto
 ```
 
 
-RELATIONS
+INFORMATIVE RELATIONS
 ==============
 Row
 ------------------------------------
+### Daily News
 ```{r Relations}
 # create a dataset:
 data <- data_frame(
@@ -339,7 +340,7 @@ data <- data_frame(
 )
 
 # Plot
-p <- simpleNetwork(data, height="2000px", width="2000px")
+p <- simpleNetwork(data, height="3000px", width="3000px")
 p
 ```
 
@@ -414,6 +415,188 @@ term_frequency_review %>%
   facet_wrap(~document, ncol = 2, scales = "free") + 
   coord_flip()
 ```
+
+WORLD UNCERTAINTY FINDINGS
+==============
+Row
+------------------------------------
+### World Map - Scoring
+```{r World Map}
+# Create a color palette with handmade bins.
+mybins <- seq(3, -3, by = -0.5)
+mypalette <- colorBin( palette="YlOrBr", domain=onebig_world$sentiment, na.color="transparent", bins=mybins)
+
+# Prepare the text for the tooltip:
+mytext <- paste(
+   "Time: ", onebig_world$Time, "<br/>", 
+   "Country: ", onebig_world$country, "<br/>", 
+   "Sentiment: ", onebig_world$sentiment, sep="") %>%
+  lapply(htmltools::HTML)
+
+# Final Map
+m <- leaflet(onebig_world) %>% 
+  addTiles()  %>% 
+  setView( lat=61, lng=105 , zoom=3) %>%
+  addProviderTiles("Esri.WorldImagery") %>%
+  addCircleMarkers(~long, ~lat, 
+    fillColor = ~mypalette(sentiment), fillOpacity = 0.7, color="white", radius=8, stroke=FALSE,
+    label = mytext,
+    labelOptions = labelOptions( style = list("font-weight" = "normal", padding = "20px 15px"), textsize = "13px", direction = "auto")
+  ) %>%
+  addLegend( pal=mypalette, values=~sentiment, opacity=0.9, title = "Danger Scoring", position = "bottomright" )
+
+m 
+```
+
+
+### World Map with News Sources
+```{r World Map with Sources}
+fig.world <- onebig_world 
+fig.world <- fig.world %>%
+  plot_ly(
+    lat = ~lat,
+    lon = ~long,
+    marker = list(color = "fuchsia"),
+    type = 'scattermapbox',
+    hovertext = onebig_world$id_review) 
+fig.world <- fig.world %>%
+  layout(
+    mapbox = list(
+      style = 'open-street-map',
+      zoom =2.5,
+      center = list(lon = -88, lat = 34))) 
+
+fig.world
+```
+
+
+Row
+------------------------------------
+### War, Nuclear War, Covid Relations with Dates
+```{r One Big Relations}
+# create a dataset:
+data.onebig <- data_frame(
+  from=onebig_war$Time,
+  to=onebig_war$word
+)
+
+# Plot
+p <- simpleNetwork(data.onebig, height="3000px", width="2000px")
+p
+```
+
+Row
+------------------------------------
+### WAR Word Polarity
+```{r War Word Polarity}
+Sentiment_Analysis_Word_Count.war %>% 
+  group_by(sentiment) %>% 
+  top_n(12, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~sentiment, scales = "free_y") + 
+  labs(y = "Contribution to Sentiment", x = NULL) + 
+  coord_flip()
+```
+
+### WAR Source Scores
+```{r War Source Scores}
+Sentiment_Analysis.war
+```
+
+### WAR Frequency Tables
+```{r War Frequency}
+term_frequency_review.war %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(12, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
+
+Row
+------------------------------------
+
+### Nuclear Word Polarity
+```{r Nuclear Word Polarity}
+Sentiment_Analysis_Word_Count.nuc %>% 
+  group_by(sentiment) %>% 
+  top_n(12, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~sentiment, scales = "free_y") + 
+  labs(y = "Contribution to Sentiment", x = NULL) + 
+  coord_flip()
+```
+
+### Nuclear Source Scores
+```{r Nuclear Source Scores}
+Sentiment_Analysis.nuc
+```
+
+### Nuclear Frequency Tables
+```{r Nuclear Frequency}
+term_frequency_review.nuc %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(10, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
+
+
+Row
+------------------------------------
+
+### Covid Word Polarity
+```{r Covid Word Polarity}
+Sentiment_Analysis_Word_Count.cov %>% 
+  group_by(sentiment) %>% 
+  top_n(12, n) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) + 
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~sentiment, scales = "free_y") + 
+  labs(y = "Contribution to Sentiment", x = NULL) + 
+  coord_flip()
+```
+
+### Covid Source Scores
+```{r Covid Source Scores}
+Sentiment_Analysis.cov
+```
+
+### Covid Frequency Tables
+```{r Covid Frequency}
+term_frequency_review.cov %>% 
+  arrange(desc(tf)) %>% 
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(document) %>% 
+  top_n(15, tf) %>% 
+  ungroup() %>% 
+  ggplot(aes(word, tf, fill = document)) + 
+  geom_col(show.legend = FALSE) + 
+  labs(x = NULL, y = "tf-idf") + 
+  facet_wrap(~document, ncol = 2, scales = "free") + 
+  coord_flip()
+```
+
+
 
 
 

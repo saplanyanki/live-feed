@@ -4,7 +4,7 @@ today <- Sys.Date()
 today <- sub(" UTC", "", today)
 today.1 <- sub(" UTC", "", today)
 today <- gsub("-", "", today)
-API_KEY <- "SECRET"
+API_KEY <- "EysB_6_3uAgy6jgSzY5-"
 
 Quandl.api_key(API_KEY)
 
@@ -137,7 +137,7 @@ top_terms_by_topic_LDA <- function(input_text, # should be a columm from a dataf
   # get the top ten terms for each topic
   top_terms <- topics  %>% # take the topics data frame and..
     group_by(topic) %>% # treat each topic as a different group
-    top_n(10, beta) %>% # get the top 10 most informative words
+    top_n(6, beta) %>% # get the top 10 most informative words
     ungroup() %>% # ungroup
     arrange(topic, -beta) # arrange words in descending informativeness
   
@@ -327,12 +327,167 @@ term_frequency_review.commodity <- term_frequency_review.commodity %>%
   bind_tf_idf(word, document, n)
 
 
+###Another way of doing Sentiment Analysis - for WAR
+war_df <- tibble(id_review = world.war$Source , text_review = world.war$Description)
+war_df <- war_df %>%  unnest_tokens(word, text_review)
+
+data(stop_words)
+#data(afinn)
+war_df <- war_df %>% 
+  anti_join(stop_words, "word")
 
 
+Sentiment_Analysis.war <- war_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+head(Sentiment_Analysis.war)%>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
 
 
+Sentiment_Analysis_Word_Count.war <- war_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+term_frequency_review.war <- war_df %>% count(word, sort = TRUE)
+term_frequency_review.war$total_words <- as.numeric(term_frequency_review.war %>% summarize(total = sum(n)))
+term_frequency_review.war$document <- as.character("Review")
+term_frequency_review.war <- term_frequency_review.war %>% 
+  bind_tf_idf(word, document, n)
 
 
+###Another way of doing Sentiment Analysis - for NUCLEAR
+nuc_df <- tibble(id_review = world.nuclear$Source , text_review = world.nuclear$Description)
+nuc_df <- nuc_df %>%  unnest_tokens(word, text_review)
+
+data(stop_words)
+#data(afinn)
+nuc_df <- nuc_df %>% 
+  anti_join(stop_words, "word")
+
+
+Sentiment_Analysis.nuc <- nuc_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+head(Sentiment_Analysis.nuc)%>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
+
+
+Sentiment_Analysis_Word_Count.nuc <- nuc_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+term_frequency_review.nuc <- nuc_df %>% count(word, sort = TRUE)
+term_frequency_review.nuc$total_words <- as.numeric(term_frequency_review.nuc %>% summarize(total = sum(n)))
+term_frequency_review.nuc$document <- as.character("Review")
+term_frequency_review.nuc <- term_frequency_review.nuc %>% 
+  bind_tf_idf(word, document, n)
+
+###Another way of doing Sentiment Analysis - for COVID
+cov_df <- tibble(id_review = world.covid$Source , text_review = world.covid$Description)
+cov_df <- cov_df %>%  unnest_tokens(word, text_review)
+
+data(stop_words)
+#data(afinn)
+cov_df <- cov_df %>% 
+  anti_join(stop_words, "word")
+
+
+Sentiment_Analysis.cov <- cov_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(id_review, sentiment) %>% 
+  spread(sentiment, n, fill = 0) %>% 
+  mutate(sentiment = positive - negative)
+
+head(Sentiment_Analysis.cov)%>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
+
+
+Sentiment_Analysis_Word_Count.cov <- cov_df %>% 
+  inner_join(get_sentiments("bing"), "word") %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+term_frequency_review.cov <- cov_df %>% count(word, sort = TRUE)
+term_frequency_review.cov$total_words <- as.numeric(term_frequency_review.cov %>% summarize(total = sum(n)))
+term_frequency_review.cov$document <- as.character("Review")
+term_frequency_review.cov <- term_frequency_review.cov %>% 
+  bind_tf_idf(word, document, n)
+
+##One Big War
+onebig_war <- inner_join(Sentiment_Analysis.war, war_df, by = 'id_review')
+world.war.1 <- world.war%>%
+  mutate(id_review = Source)
+onebig_war <- inner_join(onebig_war, world.war.1, by = 'id_review')
+onebig_war <- subset(onebig_war, select = c(id_review, sentiment,word,Time))
+
+###One Big World
+onebig_world <- onebig_war
+unique(onebig_world$word)
+#ifelse(<condition>, <yes>, ifelse(<condition>, <yes>, <no>))
+onebig_world$country <- 
+  ifelse(
+    (onebig_world$word == 'russia' | onebig_world$word == 'russian' | onebig_world$word == "putin's" | onebig_world$word == "russia's" |
+       onebig_world$word == "russo" | onebig_world$word == "russia's" | onebig_world$word == "attacks" | onebig_world$word == "armed"
+     | onebig_world$word == "conflicts" | onebig_world$word == "invades" | onebig_world$word == "violence" | onebig_world$word == "authoritarianism"
+     | onebig_world$word == "putin" | onebig_world$word == "rages" | onebig_world$word == "invading"),
+  'Russia',
+  ifelse(
+      (onebig_world$word == 'ukraine' | onebig_world$word == 'kharkiv' | onebig_world$word == "doomed" | onebig_world$word == "battlefields" |
+         onebig_world$word == "zelensky" | onebig_world$word == "ukrainian" | onebig_world$word == "defense" | onebig_world$word == "talks"
+       | onebig_world$word == "messy" | onebig_world$word == "human" | onebig_world$word == "rights" | onebig_world$word == "military" | onebig_world$word == "forces"),
+    'Ukraine',
+  ifelse(
+    (onebig_world$word == 'investing' | onebig_world$word == 'media' | onebig_world$word == "race" | onebig_world$word == "inside" |
+         onebig_world$word == "normal" | onebig_world$word == "law" | onebig_world$word == "allies" | onebig_world$word == "poland"
+       | onebig_world$word == "east" | onebig_world$word == "china" | onebig_world$word == "taiwan" | onebig_world$word == "eastern" | onebig_world$word == "history"
+       | onebig_world$word == "trump"| onebig_world$word == "blood"| onebig_world$word == "journalists"| onebig_world$word == "china's"),
+    'China',
+  ifelse(
+    (onebig_world$word == 'key' | onebig_world$word == 'risk' | onebig_world$word == "ministry" | onebig_world$word == "american" |
+           onebig_world$word == "international" | onebig_world$word == "washington" | onebig_world$word == "massachusetts" | onebig_world$word == "mit"
+         | onebig_world$word == "progress" | onebig_world$word == "science" | onebig_world$word == "u.s" | onebig_world$word == "republican" | onebig_world$word == "bans"
+         | onebig_world$word == "biden"| onebig_world$word == "troops"| onebig_world$word == "stocks"| onebig_world$word == "biden's"),
+      'USA',
+      'EU')
+    
+)))
+
+#lat
+onebig_world$lat <- 
+  ifelse(
+    (onebig_world$country == 'Russia'), runif(100, 60, 62),
+  ifelse(
+    (onebig_world$country == 'USA'), runif(100, 35, 39),
+  ifelse(
+    (onebig_world$country == 'Ukraine'), runif(100, 45, 49),
+  ifelse(
+    (onebig_world$country == 'China'), runif(100, 32, 36), runif(100, 50, 56)
+  ))))
+
+#long
+onebig_world$long <- 
+  ifelse(
+    (onebig_world$country == 'Russia'), runif(100, 100, 115),
+    ifelse(
+      (onebig_world$country == 'USA'), runif(100, -98, -90),
+      ifelse(
+        (onebig_world$country == 'Ukraine'), runif(100, 28, 33),
+        ifelse(
+          (onebig_world$country == 'China'), runif(100, 98, 110), runif(100, 10, 50)
+        ))))
+
+onebig_world$coordinates <- paste(onebig_world$long,onebig_world$lat,sep=",")
 
 
 
